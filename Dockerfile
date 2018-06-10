@@ -6,7 +6,11 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
 COPY package-lock.json /usr/src/app/
 RUN npm install --only=prod
+RUN npm install parcel http-server
 
-COPY . /usr/src/app
+COPY src /usr/src/app/src
+COPY index.html /usr/src/app
 
-CMD npm start
+RUN npm run build
+
+CMD npm run server
