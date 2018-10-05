@@ -7,6 +7,7 @@ import get from 'lodash/get';
 
 import PageLayout from '../components/PageLayout/PageLayout';
 import Pergunta from '../components/Pergunta/Pergunta';
+import ProgressBar from '../components/ProgressBar/ProgressBar';
 import QuestionsMenu from '../components/QuestionsMenu/QuestionsMenu';
 import questoes from './questoes';
 import store from '../redux/store';
@@ -222,15 +223,48 @@ export class RawQuestionario extends Component {
     });
   };
 
+  nivelDoProgresso = (userAnswers) => {
+    if (userAnswers.length === 0) {
+      return [
+        {
+          value: 0,
+        }
+      ]
+    }
+
+    const metadeDoProgresso = 50;
+    const porcentagemDeProgresso = (userAnswers.length / questoes.length) * 100 ;
+    const porcentagemMinima = porcentagemDeProgresso > metadeDoProgresso ? metadeDoProgresso : porcentagemDeProgresso;
+    const porcentagemAcimaDoMinimo = porcentagemMinima < metadeDoProgresso ? 0 : porcentagemDeProgresso - metadeDoProgresso;
+
+    const nivelDoProgresso = [
+      {
+        value: `${porcentagemMinima}%`,
+        color: '#fbdaab',
+      },
+      {
+        value: `${porcentagemAcimaDoMinimo}%`,
+        color: '#feb557',
+      }
+    ];
+
+    return nivelDoProgresso;
+  }
+
   render() {
     const { isAnswering, userAnswers, isCandidate, currentJustification } = this.state;
     const { questionario, history } = this.props;
 
     const { currentQuestion } = questionario;
     const [currentAnswer] = userAnswers.filter(answer => answer.id == currentQuestion + 1);
+    const nivelDoProgresso = this.nivelDoProgresso(userAnswers);
 
     return (
       <PageLayout>
+        <ProgressBar
+          label="PROGRESSO DAS RESPOSTAS"
+          values={nivelDoProgresso}
+        />
         <div className={'questions_box'}>
           <QuestionsMenu
             userAnswers={userAnswers}
